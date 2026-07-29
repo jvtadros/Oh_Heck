@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-felt: #1a472a;
+  --color-felt-light: #2d6a4f;
+  --color-felt-dark: #0f2922;
+  --color-gold: #d4a843;
+  --color-cream: #f5f0e8;
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-950 text-cream font-sans antialiased;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+
+  #root {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
