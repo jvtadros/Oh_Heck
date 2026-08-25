@@ -24,3 +24,10 @@ Thumbs.db
 # PWA dev
 sw.js
 workbox-*.js
+
+# Firebase
+.env
+.env.local
+.env.*.local
+.firebaserc
+.firebase
