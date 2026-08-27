@@ -1,5 +1,5 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { initializeFirestore, getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, signInAnonymously, onAuthStateChanged, type Auth } from 'firebase/auth';
 
 /**
@@ -38,7 +38,20 @@ export function getFirebaseApp(): FirebaseApp {
 }
 
 export function getDb(): Firestore {
-  if (!cachedDb) cachedDb = getFirestore(getFirebaseApp());
+  if (!cachedDb) {
+    const app = getFirebaseApp();
+    try {
+      // Our game state has optional fields (e.g. GameSettings.maxCards) that
+      // are `undefined` rather than omitted or null. Firestore rejects
+      // `undefined` field values by default, so opt in to having it silently
+      // drop them instead of throwing on every write that includes one.
+      cachedDb = initializeFirestore(app, { ignoreUndefinedProperties: true });
+    } catch {
+      // initializeFirestore throws if a Firestore instance for this app
+      // already exists (e.g. hot-reload in dev) — fall back to the existing one.
+      cachedDb = getFirestore(app);
+    }
+  }
   return cachedDb;
 }
 
