@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Lobby } from '../components/Lobby';
-import { InProgressPlaceholder } from '../components/InProgressPlaceholder';
+import { BiddingScreen } from '../components/BiddingScreen';
+import { ScoringScreen } from '../components/ScoringScreen';
+import { FinishedScreen } from '../components/FinishedScreen';
 import { ErrorBanner, SecondaryButton } from '../components/ui';
 import { useGameRoom } from '../hooks/useGameRoom';
 import { usePlayerId } from '../hooks/usePlayerId';
@@ -62,11 +64,10 @@ export default function Game() {
 
   return (
     <Screen subtitle={`Room ${room.code}`}>
-      {room.status === 'lobby' ? (
-        <Lobby room={room} playerId={playerId} />
-      ) : (
-        <InProgressPlaceholder room={room} playerId={playerId} />
-      )}
+      {room.status === 'lobby' && <Lobby room={room} playerId={playerId} />}
+      {room.status === 'bidding' && <BiddingScreen room={room} playerId={playerId} />}
+      {room.status === 'scoring' && <ScoringScreen room={room} playerId={playerId} />}
+      {room.status === 'finished' && <FinishedScreen room={room} playerId={playerId} />}
     </Screen>
   );
 }

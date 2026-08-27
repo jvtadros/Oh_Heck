@@ -47,6 +47,20 @@ export function TextField({
   );
 }
 
+export function StepperButton({
+  className = '',
+  type = 'button',
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type={type}
+      {...props}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-felt-light bg-felt-dark/60 text-lg font-bold text-cream transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 ${className}`}
+    />
+  );
+}
+
 export function ErrorBanner({ children }: { children: ReactNode }) {
   return (
     <p role="alert" className="rounded-lg border border-red-400/40 bg-red-950/40 px-4 py-3 text-sm text-red-200">
