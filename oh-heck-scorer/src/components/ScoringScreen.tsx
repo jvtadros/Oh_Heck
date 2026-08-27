@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { completeRoundForRoom, submitTricksToRoom, type GameRoom } from '../lib/gameRoom';
 import { ErrorBanner, PrimaryButton, StepperButton } from './ui';
 import { RoundHeader } from './RoundHeader';
+import { Scoreboard } from './Scoreboard';
 
 export function ScoringScreen({ room, playerId }: { room: GameRoom; playerId: string }) {
   const round = room.currentRound;
@@ -47,6 +48,8 @@ export function ScoringScreen({ room, playerId }: { room: GameRoom; playerId: st
         cardsDealt={round.cardsDealt}
         dealerName={dealer?.name ?? '—'}
       />
+
+      <Scoreboard room={room} playerId={playerId} />
 
       {isHost ? (
         <>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { finalizeBiddingForRoom, submitBidToRoom, type GameRoom } from '../lib/gameRoom';
 import { ErrorBanner } from './ui';
 import { RoundHeader } from './RoundHeader';
+import { Scoreboard } from './Scoreboard';
 
 export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: string }) {
   const [busy, setBusy] = useState(false);
@@ -44,6 +45,8 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
         cardsDealt={round.cardsDealt}
         dealerName={dealer?.name ?? '—'}
       />
+
+      <Scoreboard room={room} playerId={playerId} />
 
       {isMyTurn ? (
         <div className="flex flex-col gap-3">
