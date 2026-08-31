@@ -8,10 +8,14 @@
     <meta name="description" content="Live multiplayer scoring for Oh Heck card games" />
 
     <!-- iOS PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Oh Heck" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
+    <!-- iOS Safari does not support SVG for home-screen icons — must be PNG. -->
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <!-- Prevent iOS from auto-linking room codes or scores as phone numbers. -->
+    <meta name="format-detection" content="telephone=no" />
 
     <title>Oh Heck Scorer</title>
   </head>

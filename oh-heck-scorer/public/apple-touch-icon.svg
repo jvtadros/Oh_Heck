@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
-  <rect width="180" height="180" rx="32" fill="#1a472a"/>
-  <rect x="12" y="12" width="156" height="156" rx="24" fill="#2d6a4f" opacity="0.5"/>
-  <text x="90" y="118" text-anchor="middle" font-size="72" fill="#d4a843" font-family="Georgia, serif">`</text>
-  <text x="90" y="155" text-anchor="middle" font-size="14" fill="#f5f0e8" font-family="system-ui, sans-serif" font-weight="600">Oh Heck</text>
-</svg>
