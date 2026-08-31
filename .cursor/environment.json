@@ -1,0 +1,11 @@
+{
+  "name": "Oh Heck Scorer",
+  "install": "cd oh-heck-scorer && chmod +x scripts/write-env-local.sh && ./scripts/write-env-local.sh && npm ci",
+  "terminals": [
+    {
+      "name": "vite-dev",
+      "command": "cd oh-heck-scorer && npm run dev -- --host 0.0.0.0 --port 5173"
+    }
+  ],
+  "ports": [5173]
+}
