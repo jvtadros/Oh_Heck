@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { grandTotalsFromHistory } from '../lib/gameRules';
 import type { GameRoom } from '../lib/gameRoom';
 
 /**
@@ -20,6 +21,8 @@ export function Scoreboard({
   const ranked = [...room.players].sort((a, b) => b.totalScore - a.totalScore);
   const leadScore = ranked[0]?.totalScore ?? 0;
   const hasHistory = room.roundHistory.length > 0;
+  const playerIds = sortedBySeat.map((player) => player.id);
+  const totals = grandTotalsFromHistory(room.roundHistory, playerIds);
 
   return (
     <div className="flex flex-col gap-3">
@@ -91,6 +94,27 @@ export function Scoreboard({
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-gold/40 bg-felt-dark/80">
+                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-semibold text-cream">
+                  Total
+                </th>
+                {sortedBySeat.map((player) => {
+                  const total = totals[player.id] ?? 0;
+                  const isLeader = leadScore > 0 && total === leadScore;
+                  return (
+                    <td
+                      key={player.id}
+                      className={`whitespace-nowrap px-3 py-2 text-center font-mono text-sm font-bold ${
+                        isLeader ? 'text-gold' : 'text-cream'
+                      }`}
+                    >
+                      {total}
+                    </td>
+                  );
+                })}
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}
