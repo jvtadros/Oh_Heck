@@ -21,9 +21,7 @@ export function FinishedScreen({ room, playerId }: { room: GameRoom; playerId: s
 
       <SecondaryButton onClick={() => navigate('/')}>Back home</SecondaryButton>
 
-      <div className="mt-auto">
-        <RoundHistory room={room} defaultOpen />
-      </div>
+      <RoundHistory room={room} defaultOpen />
     </section>
   );
 }

@@ -125,9 +125,7 @@ export function ScoringScreen({ room, playerId }: { room: GameRoom; playerId: st
         </>
       )}
 
-      <div className="mt-auto">
-        <RoundHistory room={room} />
-      </div>
+      <RoundHistory room={room} />
     </section>
   );
 }

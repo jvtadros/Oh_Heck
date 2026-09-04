@@ -99,9 +99,7 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
         </ul>
       </div>
 
-      <div className="mt-auto">
-        <RoundHistory room={room} />
-      </div>
+      <RoundHistory room={room} />
     </section>
   );
 }
