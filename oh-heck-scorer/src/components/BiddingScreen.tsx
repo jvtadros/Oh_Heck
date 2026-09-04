@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { finalizeBiddingForRoom, submitBidToRoom, type GameRoom } from '../lib/gameRoom';
 import { ErrorBanner } from './ui';
 import { RoundHeader } from './RoundHeader';
-import { Scoreboard } from './Scoreboard';
+import { RoundHistory, Scoreboard } from './Scoreboard';
 
 export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: string }) {
   const [busy, setBusy] = useState(false);
@@ -38,7 +38,7 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
   }
 
   return (
-    <section className="flex flex-1 flex-col gap-6">
+    <section className="flex flex-1 flex-col gap-3">
       <RoundHeader
         roundNumber={round.number + 1}
         totalRounds={room.roundSequence.length}
@@ -49,7 +49,7 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
       <Scoreboard room={room} playerId={playerId} />
 
       {isMyTurn ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <p className="text-center text-sm font-medium text-gold">Your turn to bid</p>
           <div className="flex flex-wrap justify-center gap-2">
             {bidOptions.map((n) => (
@@ -58,7 +58,7 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
                 type="button"
                 disabled={busy}
                 onClick={() => handleBid(n)}
-                className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-gold bg-felt/40 text-lg font-bold text-cream transition-transform active:scale-90 disabled:opacity-40 disabled:active:scale-100"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-gold bg-felt/40 text-lg font-bold text-cream transition-transform active:scale-90 disabled:opacity-40 disabled:active:scale-100"
               >
                 {n}
               </button>
@@ -74,8 +74,8 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-cream/60">Bids</h2>
-        <ul className="flex flex-col gap-2">
+        <h2 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-cream/60">Bids</h2>
+        <ul className="flex flex-col gap-1.5">
           {sortedPlayers.map((player) => {
             const bid = round.bids[player.id];
             const isDealer = player.seat === round.dealerSeat;
@@ -83,21 +83,23 @@ export function BiddingScreen({ room, playerId }: { room: GameRoom; playerId: st
             return (
               <li
                 key={player.id}
-                className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                className={`flex items-center justify-between rounded-xl border px-3 py-2.5 ${
                   isTurn ? 'border-gold bg-gold/10' : 'border-felt-light/40 bg-felt-dark/50'
                 }`}
               >
-                <span className="font-medium text-cream">
+                <span className="text-sm font-medium text-cream">
                   {player.name}
                   {player.id === playerId && <span className="text-cream/50"> (you)</span>}
                   {isDealer && <span className="ml-2 text-xs text-cream/50">Dealer</span>}
                 </span>
-                <span className="font-mono text-lg font-bold text-gold">{bid === null ? '—' : bid}</span>
+                <span className="font-mono text-base font-bold text-gold">{bid === null ? '—' : bid}</span>
               </li>
             );
           })}
         </ul>
       </div>
+
+      <RoundHistory room={room} />
     </section>
   );
 }

@@ -138,6 +138,21 @@ export function validateTricks(
   return { valid: true };
 }
 
+/** Running totals per player from completed rounds (sum of each round's scores). */
+export function grandTotalsFromHistory(
+  roundHistory: CompletedRound[],
+  playerIds: string[],
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const id of playerIds) totals[id] = 0;
+  for (const round of roundHistory) {
+    for (const id of playerIds) {
+      totals[id] += round.roundScores[id] ?? 0;
+    }
+  }
+  return totals;
+}
+
 export function applyRoundScores(
   players: Player[],
   bids: Record<string, number>,
