@@ -10,14 +10,16 @@ export function RoundHeader({
   dealerName: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gold/30 bg-felt/40 p-5 text-center">
-      <p className="text-xs uppercase tracking-widest text-cream/60">
+    <div className="rounded-xl border border-gold/30 bg-felt/40 px-3 py-2 text-center">
+      <p className="text-[11px] uppercase tracking-wider text-cream/60">
         Round {roundNumber} of {totalRounds}
+        <span className="mx-1.5 text-cream/30">·</span>
+        <span className="font-semibold text-gold">
+          {cardsDealt} card{cardsDealt === 1 ? '' : 's'}
+        </span>
+        <span className="mx-1.5 text-cream/30">·</span>
+        Dealer {dealerName}
       </p>
-      <p className="mt-1 text-2xl font-bold text-gold">
-        {cardsDealt} card{cardsDealt === 1 ? '' : 's'}
-      </p>
-      <p className="mt-1 text-sm text-cream/70">Dealer: {dealerName}</p>
     </div>
   );
 }

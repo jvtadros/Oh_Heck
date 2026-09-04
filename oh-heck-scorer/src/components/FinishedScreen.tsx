@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { GameRoom } from '../lib/gameRoom';
 import { SecondaryButton } from './ui';
-import { Scoreboard } from './Scoreboard';
+import { RoundHistory, Scoreboard } from './Scoreboard';
 
 export function FinishedScreen({ room, playerId }: { room: GameRoom; playerId: string }) {
   const navigate = useNavigate();
@@ -11,15 +11,19 @@ export function FinishedScreen({ room, playerId }: { room: GameRoom; playerId: s
     winners.length > 1 ? `${winners.map((p) => p.name).join(' & ')} tie!` : `${ranked[0]?.name ?? 'Someone'} wins!`;
 
   return (
-    <section className="flex flex-1 flex-col gap-6">
-      <div className="rounded-2xl border border-gold/30 bg-felt/40 p-5 text-center">
-        <p className="text-xs uppercase tracking-widest text-cream/60">Game complete</p>
-        <p className="mt-1 text-2xl font-bold text-gold">{winnerText}</p>
+    <section className="flex flex-1 flex-col gap-3">
+      <div className="rounded-xl border border-gold/30 bg-felt/40 px-3 py-3 text-center">
+        <p className="text-[11px] uppercase tracking-wider text-cream/60">Game complete</p>
+        <p className="mt-0.5 text-xl font-bold text-gold">{winnerText}</p>
       </div>
 
-      <Scoreboard room={room} playerId={playerId} defaultShowHistory />
+      <Scoreboard room={room} playerId={playerId} />
 
       <SecondaryButton onClick={() => navigate('/')}>Back home</SecondaryButton>
+
+      <div className="mt-auto">
+        <RoundHistory room={room} defaultOpen />
+      </div>
     </section>
   );
 }
