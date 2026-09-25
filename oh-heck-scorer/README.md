@@ -42,14 +42,56 @@ cp .firebaserc.example .firebaserc   # edit the project id inside
 npx firebase-tools deploy --only firestore:rules
 ```
 
+### 5. Deploy the app so friends and family can use it on their phones
+
+The dev server (`npm run dev`) only runs on your own machine — nobody else
+can reach it. To get a real, always-on URL you can text/share, deploy the
+production build to **Firebase Hosting** (already configured in
+[`firebase.json`](firebase.json), and free for an app this size):
+
+```bash
+npm run deploy
+```
+
+This runs `npm run build` and then `firebase deploy --only hosting`. The
+first deploy prints a URL like:
+
+```
+https://YOUR-PROJECT-ID.web.app
+```
+
+Share that link. Anyone can open it on their phone:
+
+- **iPhone**: open the link in **Safari** → Share button → **Add to Home
+  Screen**. (It must be opened in Safari, not another browser, for this to work.)
+- **Samsung / Android**: open the link in **Chrome** → tap **Install app**
+  when prompted, or open the ⋮ menu → **Add to Home screen**.
+
+Either way it installs like a native app icon with no browser chrome, per
+the PWA manifest in [`vite.config.ts`](vite.config.ts).
+
+**Whenever you make code changes**, re-run `npm run deploy` to publish them —
+Firebase Hosting keeps the previous version live until the new one finishes
+uploading, so there's no downtime. If you also changed `firestore.rules`, use
+`npm run deploy:all` instead to publish both at once.
+
+> Alternative hosts: since this is a static Vite build (`dist/`), it also
+> deploys as-is to Vercel, Netlify, GitHub Pages, or Cloudflare Pages if you'd
+> rather use one of those — just make sure the Firebase env vars from step 3
+> are set as build-time environment variables there too, and that SPA
+> fallback to `index.html` is enabled (Firebase Hosting's rewrite rule is
+> already set up for you).
+
 ## Scripts
 
 ```bash
-npm run dev        # start the Vite dev server
-npm run build       # type-check and build for production
-npm run preview     # preview the production build locally
-npm test            # run unit tests once
-npm run test:watch  # run unit tests in watch mode
+npm run dev         # start the Vite dev server
+npm run build        # type-check and build for production
+npm run preview      # preview the production build locally
+npm test             # run unit tests once
+npm run test:watch   # run unit tests in watch mode
+npm run deploy       # build and deploy the app to Firebase Hosting
+npm run deploy:all   # build and deploy both Hosting and Firestore rules
 ```
 
 ## Project structure
