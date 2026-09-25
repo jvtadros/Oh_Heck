@@ -81,6 +81,14 @@ export function Lobby({ room, playerId }: { room: GameRoom; playerId: string }) 
         </ul>
       </div>
 
+      <p className="text-center text-xs leading-relaxed text-cream/50">
+        13 rounds, dealing 1 card up to 7 and back down. Hit your bid for 10 + your
+        bid;{' '}
+        {room.settings.scoringRules === 'trickBonus'
+          ? 'miss it and you still score 1 per trick taken.'
+          : 'miss it and you score nothing.'}
+      </p>
+
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
       {isHost ? (

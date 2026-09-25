@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { GameSettings, GameState, Player } from '../types/game';
 import {
+  DEFAULT_SCORING_RULES,
   applyRoundScores,
   buildRoundSequence,
   calculateRoundScore,
@@ -82,6 +83,12 @@ describe('scoring', () => {
 
   it('awards tricks taken as a consolation under trickBonus rules', () => {
     expect(calculateRoundScore(3, 2, 'trickBonus')).toBe(2);
+  });
+
+  it('defaults to the trickBonus house rule', () => {
+    expect(DEFAULT_SCORING_RULES).toBe('trickBonus');
+    // Bidding 0 and taking 1 scored nothing under the old default.
+    expect(calculateRoundScore(0, 1, DEFAULT_SCORING_RULES)).toBe(1);
   });
 
   it('applies scores across all players and accumulates totals', () => {

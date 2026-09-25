@@ -66,6 +66,10 @@ export function RoundHistory({
       </button>
 
       {showHistory && (
+        <p className="self-center text-[10px] text-cream/40">bid / tricks taken → score</p>
+      )}
+
+      {showHistory && (
         <div className="max-h-48 overflow-auto rounded-xl border border-felt-light/40">
           <table className="w-full min-w-full text-[11px]">
             <thead className="sticky top-0">
@@ -92,10 +96,14 @@ export function RoundHistory({
                   </td>
                   {sortedBySeat.map((player) => {
                     const bid = round.bids[player.id];
+                    const tricks = round.tricks[player.id];
                     const score = round.roundScores[player.id];
+                    const made = bid === tricks;
                     return (
                       <td key={player.id} className="whitespace-nowrap px-2 py-1.5 text-center font-mono">
-                        <span className="text-cream/50">{bid}</span>
+                        <span className={made ? 'text-cream/70' : 'text-cream/50'}>{bid}</span>
+                        <span className="text-cream/30">/</span>
+                        <span className={made ? 'text-cream/70' : 'text-gold/70'}>{tricks}</span>
                         <span className="mx-0.5 text-cream/30">→</span>
                         <span className={score > 0 ? 'font-bold text-gold' : 'text-cream/40'}>{score}</span>
                       </td>

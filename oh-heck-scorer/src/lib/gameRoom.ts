@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { getDb, ensureAnonymousAuth } from './firebase';
 import {
+  DEFAULT_SCORING_RULES,
   completeRound,
   finalizeBidding,
   startGame,
@@ -138,7 +139,7 @@ export async function createGameRoom(
     status: 'lobby',
     settings: {
       playerCount: 0,
-      scoringRules: options.scoringRules ?? 'standard',
+      scoringRules: options.scoringRules ?? DEFAULT_SCORING_RULES,
       maxCards: options.maxCards,
     },
     players: [hostPlayer],

@@ -35,6 +35,9 @@ export function getPlayerIdBySeat(players: Player[], seat: number): string | und
 /** Largest hand in a standard game: 1 up to 7 and back down to 1 is 13 rounds. */
 export const DEFAULT_MAX_CARDS = 7;
 
+/** House rule: a missed bid still earns a point per trick taken. */
+export const DEFAULT_SCORING_RULES: ScoringRules = 'trickBonus';
+
 /**
  * Builds the classic Oh Heck round sequence: hand sizes ramp from 1 up to the
  * largest hand and back down to 1, so a standard game is [1,2,...,7,...,2,1] —
