@@ -15,7 +15,9 @@ import {
   finalizeBidding,
   startGame,
   submitBid,
+  submitPlayerTricks,
   submitTricks,
+  withUnreportedTricksAsZero,
 } from './gameRules';
 import type { GameSettings, GameState, Player } from '../types/game';
 
@@ -264,6 +266,29 @@ export async function submitTricksToRoom(
   });
 }
 
+/**
+ * Records one player's tricks taken for the active round. Players report their
+ * own count; the host may also correct another player's number before
+ * submitting the round.
+ */
+export async function submitPlayerTricksToRoom(
+  roomId: string,
+  playerId: string,
+  tricks: number,
+): Promise<void> {
+  const db = getDb();
+  const ref = doc(db, GAMES_COLLECTION, roomId);
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) throw new Error('Room not found.');
+    const room = fromFirestoreGameFields(roomId, snap.data() as DocumentData);
+    const result = submitPlayerTricks(room, playerId, tricks);
+    if (!result.success) throw new Error(result.error);
+    tx.update(ref, { currentRound: result.state.currentRound, updatedAt: serverTimestamp() });
+  });
+}
+
 /** Scores the round, appends it to history, and either starts the next round or finishes the game. */
 export async function completeRoundForRoom(roomId: string): Promise<void> {
   const db = getDb();
@@ -273,7 +298,7 @@ export async function completeRoundForRoom(roomId: string): Promise<void> {
     const snap = await tx.get(ref);
     if (!snap.exists()) throw new Error('Room not found.');
     const room = fromFirestoreGameFields(roomId, snap.data() as DocumentData);
-    const result = completeRound(room);
+    const result = completeRound(withUnreportedTricksAsZero(room));
     if (!result.success) throw new Error(result.error);
     tx.update(ref, {
       status: result.state.status,

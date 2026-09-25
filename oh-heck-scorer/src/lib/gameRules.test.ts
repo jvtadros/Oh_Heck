@@ -9,10 +9,14 @@ import {
   finalizeBidding,
   getBidOrder,
   getDealerSeat,
+  playersMissingTricks,
   startGame,
   submitBid,
+  submitPlayerTricks,
   submitTricks,
+  tricksClaimed,
   validateTricks,
+  withUnreportedTricksAsZero,
 } from './gameRules';
 
 function makePlayers(count: number): Player[] {
@@ -32,8 +36,14 @@ function unwrap(result: { success: boolean; state?: GameState; error?: string })
 }
 
 describe('buildRoundSequence', () => {
-  it('ramps 1 up to max and back down to 1 for 4 players', () => {
-    expect(buildRoundSequence(4)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  it('ramps 1 up to 7 and back down to 1, giving 13 rounds', () => {
+    expect(buildRoundSequence(4)).toEqual([1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1]);
+  });
+
+  it('plays 13 rounds regardless of how many players are at the table', () => {
+    for (const playerCount of [2, 3, 4, 5, 6, 7]) {
+      expect(buildRoundSequence(playerCount)).toHaveLength(13);
+    }
   });
 
   it('respects an explicit maxCards override', () => {
@@ -42,6 +52,11 @@ describe('buildRoundSequence', () => {
 
   it('throws for fewer than 2 players', () => {
     expect(() => buildRoundSequence(1)).toThrow();
+  });
+
+  it('throws when the deck cannot deal the largest hand to everyone', () => {
+    // 8 players would need 56 cards for a 7-card hand.
+    expect(() => buildRoundSequence(8)).toThrow(/Not enough cards/);
   });
 });
 
@@ -103,6 +118,114 @@ describe('validateTricks', () => {
 
   it('passes when tricks sum matches cards dealt', () => {
     expect(validateTricks({ p0: 2, p1: 1 }, 3, ['p0', 'p1']).valid).toBe(true);
+  });
+});
+
+describe('per-player trick reporting', () => {
+  const settings: GameSettings = { playerCount: 3, scoringRules: 'standard', maxCards: 2 };
+
+  function scoringState(): GameState {
+    let state = unwrap(startGame(settings, makePlayers(3)));
+    state = unwrap(submitBid(state, 'p1', 1));
+    state = unwrap(submitBid(state, 'p2', 0));
+    state = unwrap(submitBid(state, 'p0', 0));
+    return unwrap(finalizeBidding(state));
+  }
+
+  it('records one player without requiring the others yet', () => {
+    const state = unwrap(submitPlayerTricks(scoringState(), 'p1', 1));
+    expect(state.currentRound?.tricks).toEqual({ p0: null, p1: 1, p2: null });
+  });
+
+  it('lets a player overwrite their own count before the round is submitted', () => {
+    let state = unwrap(submitPlayerTricks(scoringState(), 'p1', 1));
+    state = unwrap(submitPlayerTricks(state, 'p1', 0));
+    expect(state.currentRound?.tricks.p1).toBe(0);
+  });
+
+  it('rejects a count above the cards dealt', () => {
+    // Round 1 deals 1 card, so 2 tricks is impossible.
+    expect(submitPlayerTricks(scoringState(), 'p1', 2).success).toBe(false);
+  });
+
+  it('rejects a player who is not in the game', () => {
+    expect(submitPlayerTricks(scoringState(), 'nobody', 0).success).toBe(false);
+  });
+
+  it('rejects reporting outside the scoring phase', () => {
+    const lobby = unwrap(startGame(settings, makePlayers(3)));
+    expect(submitPlayerTricks(lobby, 'p1', 0).success).toBe(false);
+  });
+
+  it('blocks completing the round until everyone has reported', () => {
+    let state = unwrap(submitPlayerTricks(scoringState(), 'p1', 1));
+    expect(completeRound(state).success).toBe(false);
+
+    state = unwrap(submitPlayerTricks(state, 'p0', 0));
+    state = unwrap(submitPlayerTricks(state, 'p2', 0));
+    expect(completeRound(state).success).toBe(true);
+  });
+
+  it('blocks completing the round when the reported tricks do not add up', () => {
+    let state = scoringState();
+    // Round 1 deals 1 card, but two players each claim a trick.
+    state = unwrap(submitPlayerTricks(state, 'p0', 1));
+    state = unwrap(submitPlayerTricks(state, 'p1', 1));
+    state = unwrap(submitPlayerTricks(state, 'p2', 0));
+    const result = completeRound(state);
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toMatch(/add up to 1/);
+  });
+
+  it('lets the host submit a round where the others already account for every trick', () => {
+    // Round 1 deals 1 card. p1 took it, so p0 (host) and p2 took none and
+    // should not have to enter an explicit zero.
+    const state = unwrap(submitPlayerTricks(scoringState(), 'p1', 1));
+    expect(completeRound(state).success).toBe(false);
+
+    const filled = withUnreportedTricksAsZero(state);
+    expect(filled.currentRound?.tricks).toEqual({ p0: 0, p1: 1, p2: 0 });
+    const completed = unwrap(completeRound(filled));
+    expect(completed.roundHistory[0].tricks).toEqual({ p0: 0, p1: 1, p2: 0 });
+  });
+
+  it('leaves tricks alone until the reported ones add up', () => {
+    // Round 2 deals 2 cards, so one reported trick leaves the round open and
+    // the missing players cannot be assumed to have taken none.
+    let state = scoringState();
+    state = unwrap(submitPlayerTricks(state, 'p1', 1));
+    state = unwrap(submitPlayerTricks(state, 'p0', 0));
+    state = unwrap(submitPlayerTricks(state, 'p2', 0));
+    state = unwrap(completeRound(state));
+    state = unwrap(submitBid(state, 'p2', 0));
+    state = unwrap(submitBid(state, 'p0', 0));
+    state = unwrap(submitBid(state, 'p1', 0));
+    state = unwrap(finalizeBidding(state));
+    expect(state.currentRound?.cardsDealt).toBe(2);
+
+    const partial = unwrap(submitPlayerTricks(state, 'p1', 1));
+    expect(withUnreportedTricksAsZero(partial).currentRound?.tricks).toEqual({
+      p0: null,
+      p1: 1,
+      p2: null,
+    });
+  });
+
+  it('tracks who is still missing and how many tricks are claimed', () => {
+    const players = makePlayers(3);
+    let state = scoringState();
+    expect(playersMissingTricks(state.currentRound!.tricks, players).map((p) => p.id)).toEqual([
+      'p0',
+      'p1',
+      'p2',
+    ]);
+
+    state = unwrap(submitPlayerTricks(state, 'p1', 1));
+    expect(playersMissingTricks(state.currentRound!.tricks, players).map((p) => p.id)).toEqual([
+      'p0',
+      'p2',
+    ]);
+    expect(tricksClaimed(state.currentRound!.tricks, ['p0', 'p1', 'p2'])).toBe(1);
   });
 });
 

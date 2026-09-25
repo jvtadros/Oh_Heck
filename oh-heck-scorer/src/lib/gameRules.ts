@@ -32,17 +32,24 @@ export function getPlayerIdBySeat(players: Player[], seat: number): string | und
   return players.find((p) => p.seat === seat)?.id;
 }
 
+/** Largest hand in a standard game: 1 up to 7 and back down to 1 is 13 rounds. */
+export const DEFAULT_MAX_CARDS = 7;
+
 /**
  * Builds the classic Oh Heck round sequence: hand sizes ramp from 1 up to the
- * largest hand and back down to 1, e.g. for 4 players: [1,2,...,9,8,...,1].
+ * largest hand and back down to 1, so a standard game is [1,2,...,7,...,2,1] —
+ * 13 rounds. A 7-card peak also keeps the deck big enough for up to 7 players.
  */
 export function buildRoundSequence(playerCount: number, maxCards?: number): number[] {
   if (playerCount < 2) {
     throw new Error('Oh Heck requires at least 2 players');
   }
-  const max = maxCards ?? 13 - playerCount;
+  const max = maxCards ?? DEFAULT_MAX_CARDS;
   if (max < 1) {
     throw new Error('Not enough cards for this many players');
+  }
+  if (max * playerCount > 52) {
+    throw new Error(`Not enough cards to deal ${max} each to ${playerCount} players`);
   }
   const up: number[] = [];
   for (let n = 1; n <= max; n++) up.push(n);
@@ -114,6 +121,26 @@ export function allSubmitted(values: Record<string, number | null>, playerIds: s
 export function calculateRoundScore(bid: number, tricks: number, rules: ScoringRules): number {
   if (bid === tricks) return 10 + bid;
   return rules === 'trickBonus' ? tricks : 0;
+}
+
+export function isValidTrickCount(tricks: number, cardsDealt: number): boolean {
+  return Number.isInteger(tricks) && tricks >= 0 && tricks <= cardsDealt;
+}
+
+/** Tricks claimed so far this round; unsubmitted players count as zero. */
+export function tricksClaimed(
+  tricks: Record<string, number | null>,
+  playerIds: string[],
+): number {
+  return playerIds.reduce((sum, id) => sum + (tricks[id] ?? 0), 0);
+}
+
+/** Players who have not yet reported their own tricks for the round. */
+export function playersMissingTricks(
+  tricks: Record<string, number | null>,
+  players: Player[],
+): Player[] {
+  return players.filter((player) => tricks[player.id] === null || tricks[player.id] === undefined);
 }
 
 export function validateTricks(
@@ -246,6 +273,57 @@ export function submitTricks(
     ...state,
     currentRound: { ...state.currentRound, tricks },
   });
+}
+
+/**
+ * Records a single player's tricks taken. Each player reports their own count
+ * from their own phone, so this deliberately does not require the round to be
+ * complete or the totals to add up yet — `completeRound` enforces that once
+ * the host submits the round.
+ */
+export function submitPlayerTricks(
+  state: GameState,
+  playerId: string,
+  tricks: number,
+): GameActionResult {
+  if (state.status !== 'scoring' || !state.currentRound) {
+    return fail('Game is not in the scoring phase');
+  }
+  if (!state.players.some((p) => p.id === playerId)) {
+    return fail('Unknown player');
+  }
+  const round = state.currentRound;
+  if (!isValidTrickCount(tricks, round.cardsDealt)) {
+    return fail(`Tricks must be a whole number between 0 and ${round.cardsDealt}`);
+  }
+  return ok({
+    ...state,
+    currentRound: { ...round, tricks: { ...round.tricks, [playerId]: tricks } },
+  });
+}
+
+/**
+ * Fills in 0 for players who never reported, but only once the reported tricks
+ * already add up to the cards dealt. At that point the round is fully
+ * accounted for, so anyone still missing must have taken none — nobody has to
+ * tap their way to an explicit zero. Any other state is returned untouched.
+ */
+export function withUnreportedTricksAsZero(state: GameState): GameState {
+  if (state.status !== 'scoring' || !state.currentRound) return state;
+  const round = state.currentRound;
+  const playerIds = state.players.map((p) => p.id);
+  if (tricksClaimed(round.tricks, playerIds) !== round.cardsDealt) return state;
+
+  const tricks = { ...round.tricks };
+  let changed = false;
+  for (const id of playerIds) {
+    if (tricks[id] === null || tricks[id] === undefined) {
+      tricks[id] = 0;
+      changed = true;
+    }
+  }
+  if (!changed) return state;
+  return { ...state, currentRound: { ...round, tricks } };
 }
 
 export function completeRound(state: GameState): GameActionResult {
