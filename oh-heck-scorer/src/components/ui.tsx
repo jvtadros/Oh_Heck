@@ -9,7 +9,7 @@ export function PrimaryButton({
     <button
       type={type}
       {...props}
-      className={`min-h-14 w-full rounded-xl bg-gold px-6 py-3.5 text-base font-semibold text-felt-dark shadow-md transition-transform active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 ${className}`}
+      className={`min-h-12 w-full rounded-xl bg-gold px-5 py-3 text-base font-semibold text-felt-dark shadow-md transition-transform active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 ${className}`}
     />
   );
 }
@@ -23,7 +23,7 @@ export function SecondaryButton({
     <button
       type={type}
       {...props}
-      className={`min-h-14 w-full rounded-xl border-2 border-felt-light bg-felt/40 px-6 py-3.5 text-base font-semibold text-cream transition-transform active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 ${className}`}
+      className={`min-h-12 w-full rounded-xl border-2 border-felt-light bg-felt/40 px-5 py-3 text-base font-semibold text-cream transition-transform active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 ${className}`}
     />
   );
 }
@@ -56,7 +56,7 @@ export function StepperButton({
     <button
       type={type}
       {...props}
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-felt-light bg-felt-dark/60 text-lg font-bold text-cream transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 ${className}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-felt-light bg-felt-dark/60 text-lg font-bold text-cream transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 ${className}`}
     />
   );
 }

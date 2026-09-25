@@ -1,18 +1,18 @@
 export function AppHeader({ subtitle }: { subtitle: string }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-felt-light/40 bg-felt-dark/90 px-4 py-3 backdrop-blur-md safe-top">
-      <div className="mx-auto flex max-w-lg items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-felt text-lg font-bold text-gold shadow-inner"
-            aria-hidden="true"
-          >
-            ♠
-          </span>
-          <div>
-            <h1 className="text-base font-semibold leading-tight text-cream">Oh Heck Scorer</h1>
-            <p className="text-xs text-cream/60">{subtitle}</p>
-          </div>
+    <header className="sticky top-0 z-10 border-b border-felt-light/40 bg-felt-dark/90 px-3 py-1.5 backdrop-blur-md safe-top">
+      <div className="mx-auto flex max-w-lg items-center gap-2">
+        <span
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-felt text-sm font-bold text-gold shadow-inner"
+          aria-hidden="true"
+        >
+          ♠
+        </span>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-sm font-semibold leading-tight text-cream">
+            Oh Heck Scorer
+            <span className="font-normal text-cream/50"> · {subtitle}</span>
+          </h1>
         </div>
       </div>
     </header>

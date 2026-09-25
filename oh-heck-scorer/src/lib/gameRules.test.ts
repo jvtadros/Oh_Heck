@@ -5,6 +5,7 @@ import {
   buildRoundSequence,
   calculateRoundScore,
   completeRound,
+  grandTotalsFromHistory,
   finalizeBidding,
   getBidOrder,
   getDealerSeat,
@@ -78,6 +79,18 @@ describe('scoring', () => {
     );
     expect(roundScores).toEqual({ p0: 12, p1: 0 });
     expect(updated.map((p) => p.totalScore)).toEqual([17, 5]);
+  });
+
+  it('sums round scores into grand totals across history', () => {
+    expect(
+      grandTotalsFromHistory(
+        [
+          { number: 0, cardsDealt: 1, dealerSeat: 0, bids: { p0: 1, p1: 0 }, tricks: { p0: 1, p1: 0 }, roundScores: { p0: 11, p1: 10 } },
+          { number: 1, cardsDealt: 2, dealerSeat: 1, bids: { p0: 1, p1: 1 }, tricks: { p0: 1, p1: 1 }, roundScores: { p0: 11, p1: 11 } },
+        ],
+        ['p0', 'p1'],
+      ),
+    ).toEqual({ p0: 22, p1: 21 });
   });
 });
 

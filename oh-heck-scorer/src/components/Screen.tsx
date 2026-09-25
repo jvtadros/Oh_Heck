@@ -15,9 +15,9 @@ export function Screen({
     <div className="flex min-h-dvh flex-col">
       <AppHeader subtitle={subtitle} />
 
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 safe-bottom">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 py-3 safe-bottom">
         {children}
-        {footer && <footer className="mt-auto pt-8 text-center">{footer}</footer>}
+        {footer && <footer className="mt-auto pt-4 text-center">{footer}</footer>}
       </main>
 
       <InstallPrompt />
